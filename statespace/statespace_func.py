@@ -348,13 +348,15 @@ def irgraphs(irarray, names = None, subplotwidth = None, pltshow = False, pltsav
     plt.close()
 
 
-def irgraphs_multiplelines(irarray, linenames = None, graphnames = None, subplotwidth = None, pltshow = False, pltsavename = None, Trange = None, graphswithlegend = None, Trangeislist = False):
+def irgraphs_multiplelines(irarray, linenames = None, graphnames = None, subplotwidth = None, pltshow = False, pltsavename = None, Trange = None, graphswithlegend = None, linestyles = None, legendbottom = True):
     """
     Plots IRFS of multiple different runs
     I show multiple graphs and on each graphs there is a line for each model
 
     irarray is numvarseaachgraph x T x numberofgraphs or a list of T x numberofgraphs numpy arrays
-    If Trangeislist then Trange = [[0, ..., 40], [0, ..., 40]] so that I can vary the number of observations for different IRFs
+
+    legendbottom places legend at bottom of graph
+    Otherwise place in graphs specified by graphswithlegend (default only first graph)
     """
     import matplotlib.pyplot as plt
     import numpy as np
@@ -362,6 +364,12 @@ def irgraphs_multiplelines(irarray, linenames = None, graphnames = None, subplot
     numlines = len(irarray)
     T = len(irarray[0])
     numgraphs = len(irarray[0][0])
+
+    # linestyles - only works if numlines <= 4
+    if linestyles == 'colorbw':
+        if numlines > 4:
+            raise ValueError('Too many numlines for alternativelinestyles to work.')
+        linestyles = ['b-', 'g--', 'r-.', 'y:']
 
     # adjust defaults
     if subplotwidth is None:
@@ -371,15 +379,14 @@ def irgraphs_multiplelines(irarray, linenames = None, graphnames = None, subplot
 
     if graphswithlegend is None:
         # just show legend in first subplot
-        graphswithaxis = [0]
+        graphswithlegend = [0]
 
     subplotheight = (numgraphs + subplotwidth - 1) // subplotwidth
 
-    if Trangeislist is False:
-        if Trange is None:
-            Trange2 = list(range(T))
-        else:
-            Trange2 = Trange
+    if Trange is None:
+        Trange = list(range(T))
+    else:
+        Trange = Trange
 
     fig = plt.figure()
     for numgraph in range(numgraphs):
@@ -387,16 +394,23 @@ def irgraphs_multiplelines(irarray, linenames = None, graphnames = None, subplot
         if graphnames is not None:
             ax.set_title(graphnames[numgraph])
         for numline in range(numlines):
-            # adjust Trange if necessary
-            if Trangeislist is True:
-                Trange2 = Trange[numline]
-            # plot the actual graph
-            ax.plot(Trange2, irarray[numline][:, numgraph], label = linenames[numline])
+            # save lines but actually only do this for one graph
+            lines = []
+            if linestyles is not None:
+                # plot the actual graph
+                lines.append( ax.plot(Trange, irarray[numline][:, numgraph], linestyles[numline], label = linenames[numline]) )
+            else:
+                lines.append( ax.plot(Trange, irarray[numline][:, numgraph], label = linenames[numline]) )
 
-        if numgraph in graphswithaxis:
+        if numgraph in graphswithlegend:
             ax.legend()
 
+    # do tight layout so do not overlap before then add in legend at bottom
     plt.tight_layout()
+
+    if legendbottom is True:
+        fig.legend(lines, labels = linenames, loc = 'lower center', borderaxespad = 0.1, ncol = 4)
+        plt.subplots_adjust(bottom = 0.12)
 
     if pltsavename is not None:
         plt.savefig(pltsavename)
@@ -404,6 +418,15 @@ def irgraphs_multiplelines(irarray, linenames = None, graphnames = None, subplot
         plt.show()
 
     plt.close()
+
+
+def irgraphs_multiplelines_test():
+   var_graph1 = np.linspace(1, 0, 40) ** 3
+   graph1 = np.array([var_graph1, var_graph1, var_graph1, var_graph1]).transpose()
+   graph2 = graph1 * 1.2
+   irarray = np.array([graph1, graph2])
+
+   irgraphs_multiplelines(irarray, linenames = ['line1', 'line2'], graphnames = ['graph1', 'graph2', 'graph3', 'graph4'], linestyles = 'colorbw')
 
 
 # Variance Decomposition:{{{1
