@@ -414,7 +414,7 @@ def irgraphs_multiplelines(irarray, linenames = None, graphnames = None, subplot
 
     if pltsavename is not None:
         plt.savefig(pltsavename)
-    else:
+    if pltsavename is None or pltshow is True:
         plt.show()
 
     plt.close()
