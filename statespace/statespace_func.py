@@ -378,8 +378,11 @@ def irgraphs_multiplelines(irarray, linenames = None, graphnames = None, subplot
         linenames = [None] * numlines
 
     if graphswithlegend is None:
-        # just show legend in first subplot
-        graphswithlegend = [0]
+        if legendbottom is True:
+            graphswithlegend = []
+        else:
+            # just show legend in first subplot
+            graphswithlegend = [0]
 
     subplotheight = (numgraphs + subplotwidth - 1) // subplotwidth
 
