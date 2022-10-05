@@ -48,45 +48,25 @@ def weightvaluediscretevec_test():
     print(weightvaluediscretevec(2.4, [0, 1, 2]))
 
 
-def weightvalue_orderedlist(orderedlist, discretevec):
+def weightvalues_inputlist(inputlist, discretevec):
     """
-    I have some ordered list [1,2,3,4] and I want to express it in terms of weights on discretevec [2,2.5,3,3.5].
-    Return two lists and two integers: firstnonzeroweightindex, weightonfirst, firstindexonly, lastindexonly
+    Run weightvaluediscretevec many times on an inputlist (rather than just for a single value)
+    Inputlist does not need to be ordered
+    Note this could be more efficient if I used an ordered input list and adjusted the function
+
+    Returnlist is an array
+    Element i,j corresponds to weight of j in discretevec that is used in constructing value i in inputlist
     """
-    # j denotes the index of discretevec that we are currently considering
-    firstindexonly = 0
-    while orderedlist[firstindexonly] <= discretevec[0]:
-        firstindexonly += 1
-        if firstindexonly == len(orderedlist):
-            break
+    returnlists = []
+    for value in inputlist:
+        returnlists.append( weightvaluediscretevec(value, discretevec) )
 
-    lastindexonly = 0
-    while orderedlist[len(orderedlist) - lastindexonly - 1] >= discretevec[-1]:
-        lastindexonly += 1
-        if lastindexonly == len(orderedlist):
-            break
-
-    firstnonzeroweightindex = []
-    weightonfirst = []
-    # j is index of discretevec we're considering
-    j = 0
-    for i in range(firstindexonly, len(orderedlist) - lastindexonly):
-        # raise discretevec element we're considering until in right range
-        while discretevec[j + 1] <= orderedlist[i]:
-            j = j + 1
-
-        firstnonzeroweightindex.append(j)
-        weight = (discretevec[j + 1] - orderedlist[i]) / (discretevec[j + 1] - discretevec[j])
-        weightonfirst.append(weight)
+    return(np.array(returnlists))
 
 
-    return(firstnonzeroweightindex, weightonfirst, firstindexonly, lastindexonly)
-
-
-def weightvalue_orderedlist_test():
-    print(weightvalue_orderedlist([1,2,3,4], [2,3,4]))
-    print(weightvalue_orderedlist([2.4, 3.6], [2,3,4]))
-    print(weightvalue_orderedlist([1.4, 2.4, 3.6, 4.6], [2,3,4]))
+def weightvalues_inputlist_test():
+    discretevec = [0, 1, 2, 3, 4]
+    print(weightvalues_inputlist([-1, 1, 1.5, 4, 5], discretevec))
 
 
 def weightvaluediscretevec_i(value, discretevec):
@@ -111,6 +91,10 @@ def intervals_gt(value, discretevec):
     Get probability that value is greater than points in set of intervals.
     discretevec is ordered list
     If discretevec is [0, 1, 2] then intervals are given by [0 < x < 1, 1 < x < 2]
+
+    So I compute P(val > points in interval [0, 1]) and P(val > points in interval [1, 2])
+    If val < the lower bound of the interval then the probability is zero
+    If val > the upper bound of the interval then the probability is 1
     """
     # cover extreme cases first
     if discretevec[0] >= value:
