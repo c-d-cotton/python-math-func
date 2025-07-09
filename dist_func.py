@@ -201,8 +201,8 @@ def test_getnormalpercentiles():
 
 def markov_normal(values, mean = 0, rho = 0, sd = 1):
     """
-    Markov transmission matrix for A = rho * A_{t - 1} + (1 - rho) * mean + \epsilon_t
-    where \epsilon_t \sim N(0, sd^2)
+    Markov transmission matrix for A = rho * A_{t - 1} + (1 - rho) * mean + \\epsilon_t
+    where \\epsilon_t \\sim N(0, sd^2)
     B < 1 (otherwise not a Markov matrix)
 
     Input Normal values together with mean and 
@@ -225,8 +225,8 @@ def markov_normal_test():
 
 def values_markov_normal(Nstates, mean = 0, rho = 0, sdshock = None, sdvar = None):
     """
-    Markov transmission matrix for A = rho * A_{t - 1} + (1 - rho) * mean + \epsilon_t
-    Where epsilon_t \sim N(0, sd^2)
+    Markov transmission matrix for A = rho * A_{t - 1} + (1 - rho) * mean + \\epsilon_t
+    Where epsilon_t \\sim N(0, sd^2)
 
     """
     if sdshock is not None and sdvar is not None:
