@@ -312,7 +312,7 @@ def posterioriteration(posteriorfunc, newvalues, currentposterior, logposterior 
     return(replace, newposterior)
 
 
-def metropolis_hastings(posteriorfunc, scalelist, startvallist, numiterations, lowerboundlist = None, upperboundlist = None, savefile = None, deletefile = True, savefrequency = 1000, printdetails = False, logposterior = False, raiseerror = True, logfile = None):
+def metropolis_hastings(posteriorfunc, scalelist, startvallist, numiterations, lowerboundlist = None, upperboundlist = None, savefile = None, deletefile = False, savefrequency = 1000, printdetails = False, logposterior = False, raiseerror = True, logfile = None):
     """
     savefile is a csv file where I record the distribution.
     continuefile = True means I continue from the previous file.
