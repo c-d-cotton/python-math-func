@@ -10,7 +10,7 @@ from scipy.optimize import brentq
 import numpy as np
 
 # Solve Equation:{{{1
-def brentq_onesideerror(f1, lb, ub, maxit = 1000, precision = 1e-11):
+def brentq_onesideerror(f1, lb, ub, maxit = 1000, precision = 1e-11, printdetails = True):
     """
     One side of this can return an error.
     Split in two until get only one side that returns error.
@@ -26,8 +26,9 @@ def brentq_onesideerror(f1, lb, ub, maxit = 1000, precision = 1e-11):
         uv = None
 
     if lv is None and uv is None:
-        print('Both lb and ub return an exception. ub:' + str(ub) + '. lb: ' + str(lb))
-        print('Running function again on lb to show what error was.')
+        if printdetails is True:
+            print('Both lb and ub return an exception. ub:' + str(ub) + '. lb: ' + str(lb))
+            print('Running function again on lb to show what error was.')
         f1(lb)
 
     # would be weird if the values equal exactly 0
@@ -87,11 +88,13 @@ def brentq_onesideerror(f1, lb, ub, maxit = 1000, precision = 1e-11):
 
             if ub - lb < precision:
                 if lv is None:
-                    print('Upper bound which worked from start value converged to: ' + str(ub) + '.')
-                    print('f(ub) = ' + str(f1(ub)))
+                    if printdetails is True:
+                        print('Upper bound which worked from start value converged to: ' + str(ub) + '.')
+                        print('f(ub) = ' + str(f1(ub)))
                 if uv is None:
-                    print('Lower bound which worked from start value converged to: ' + str(lb) + '.')
-                    print('f(lb) = ' + str(f1(lb)))
+                    if printdetails is True:
+                        print('Lower bound which worked from start value converged to: ' + str(lb) + '.')
+                        print('f(lb) = ' + str(f1(lb)))
                 raise ValueError('No solution exists in the range of values given.')
 
         if i == maxit:
