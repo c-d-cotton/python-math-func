@@ -86,7 +86,7 @@ def brentq_onesideerror(f1, lb, ub, maxit = 1000, precision = 1e-11, printdetail
 
             i += 1
 
-            if ub - lb < precision:
+            if abs(ub - lb) < precision:
                 if lv is None:
                     if printdetails is True:
                         print('Upper bound which worked from start value converged to: ' + str(ub) + '.')
@@ -100,54 +100,6 @@ def brentq_onesideerror(f1, lb, ub, maxit = 1000, precision = 1e-11, printdetail
         if i == maxit:
             raise ValueError('Reached maximum iteration. Brentq on one side failed.')
 
-
-
-
-
-
-
-
-    # adjust_lb = lb
-    # adjust_ub = ub
-    #
-    # if lv is None:
-    #     for i in range(maxit): 
-    #         medium = 0.5 * (adjust_lb + adjust_ub)
-    #         try:
-    #             mediumv = f1(medium)
-    #         except Exception:
-    #             mediumv = None
-    #         # if value not exist, set adjust_lb as value tried
-    #         if mediumv is None:
-    #             adjust_lb = medium
-    #         elif (mediumv > 0 and uv > 0) or (mediumv < 0 and uv < 0):
-    #             adjust_ub = medium
-    #         else:
-    #             lb = medium
-    #             break
-    #
-    #     if i == maxit - 1:
-    #         raise ValueError('Reached maximum iteration.')
-    #
-    # if uv is None:
-    #     for i in range(maxit): 
-    #         medium = 0.5 * (adjust_lb + adjust_ub)
-    #         try:
-    #             mediumv = f1(medium)
-    #         except Exception:
-    #             mediumv = None
-    #         # if value not exist, set adjust_ub as value tried
-    #         if mediumv is None:
-    #             adjust_ub = medium
-    #         elif (mediumv > 0 and uv > 0) or (mediumv < 0 and lv < 0):
-    #             adjust_ub = medium
-    #         else:
-    #             ub = medium
-    #             break
-    #
-    #     if i == maxit - 1:
-    #         raise ValueError('Reached maximum iteration.')
-    
     sol = brentq(f1, lb, ub, xtol = precision)
 
     return(sol)
