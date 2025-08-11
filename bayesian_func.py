@@ -312,10 +312,9 @@ def posterioriteration(posteriorfunc, newvalues, currentposterior, logposterior 
     return(replace, newposterior)
 
 
-def metropolis_hastings(posteriorfunc, scalelist, startvallist, numiterations, lowerboundlist = None, upperboundlist = None, savefile = None, deletefile = False, savefrequency = 1000, printdetails = False, logposterior = False, raiseerror = True, logfile = None):
+def metropolis_hastings(posteriorfunc, scalelist, startvallist, numiterations, lowerboundlist = None, upperboundlist = None, savefile = None, deletefile = False, printdetails = False, logposterior = False, raiseerror = True, logfile = None):
     """
     savefile is a csv file where I record the distribution.
-    continuefile = True means I continue from the previous file.
     If logposterior is True then the posteriorfunc = log(posterior). (Of course, it's normally possible to just convert to the exponential but if the loglikelihood is very high then this may not be possible (as we get infinity).
 
     savefile is where I save what I print out
@@ -341,7 +340,8 @@ def metropolis_hastings(posteriorfunc, scalelist, startvallist, numiterations, l
                 os.remove(savefile)
 
     # replace logfile if exists
-    printorwrite('', logfile, rewrite = True)
+    # note this will continue from the prior file
+    printorwrite('', logfile, printmessage = printdetails)
 
     # now do actual iteration
     lastsave = 0
@@ -360,11 +360,10 @@ def metropolis_hastings(posteriorfunc, scalelist, startvallist, numiterations, l
             newvalues.append(newvalue)
 
         # print out details on iteration
-        if printdetails is True:
-            printorwrite('\nIteration ' + str(i + 1) + '.', logfile)
-            printorwrite(str(datetime.datetime.now()), logfile)
-            printorwrite('Attempted values:', logfile)
-            printorwrite(newvalues, logfile)
+        printorwrite('\nIteration ' + str(i + 1) + '.', logfile, printmessage = printdetails)
+        printorwrite(str(datetime.datetime.now()), logfile, printmessage = printdetails)
+        printorwrite('Attempted values:', logfile, printmessage = printdetails)
+        printorwrite(newvalues, logfile, printmessage = printdetails)
 
 
         posteriorfailed = False
@@ -384,28 +383,26 @@ def metropolis_hastings(posteriorfunc, scalelist, startvallist, numiterations, l
             currentposterior = newposterior
 
         # print details
-        if printdetails is True:
-            if posteriorfailed is True:
-                printorwrite('Posterior failed', logfile)
-            else:
-                printorwrite('New posterior value:', logfile)
-                printorwrite(newposterior, logfile)
-            printorwrite('Current Parameters:', logfile)
-            printorwrite(currentresult, logfile)
-            printorwrite('Current Posterior:', logfile)
-            printorwrite(currentposterior, logfile)
-            printorwrite('Replace:', logfile)
-            printorwrite(replace, logfile)
+        if posteriorfailed is True:
+            printorwrite('Posterior failed', logfile, printmessage = printdetails)
+        else:
+            printorwrite('New posterior value:', logfile, printmessage = printdetails)
+            printorwrite(newposterior, logfile, printmessage = printdetails)
+        printorwrite('Current Parameters:', logfile, printmessage = printdetails)
+        printorwrite(currentresult, logfile, printmessage = printdetails)
+        printorwrite('Current Posterior:', logfile, printmessage = printdetails)
+        printorwrite(currentposterior, logfile, printmessage = printdetails)
+        printorwrite('Replace:', logfile, printmessage = printdetails)
+        printorwrite(replace, logfile, printmessage = printdetails)
         
         # save results
         unsavedresults.append(currentresult)
-        if savefile is not None and (i - lastsave >= savefrequency or i == numiterations - 1):
+        if savefile is not None and i == numiterations - 1:
             with open(savefile, 'a+') as f:
                 # need to ensure add additional \n at end
                 f.write('\n'.join([','.join([str(element) for element in line]) for line in unsavedresults]) + '\n')
             unsavedresults = []
-            if printdetails is True:
-                printorwrite('Saved up to iteration ' + str(i) + '.', logfile)
+            printorwrite('Saved up to iteration ' + str(i) + '.', logfile, printmessage = printdetails)
     return(unsavedresults)
 
 
@@ -426,14 +423,14 @@ def distfromfile(filename, burnindelete = None):
 
 
 # Metropolis Hastings Pool:{{{1
-def metropolis_hastings_pool_aux(posteriorfunc, scalelist, startvallist, numiterations, lowerboundlist, upperboundlist, deletefile, savefrequency, printdetails, logposterior, raiseerror, savefile):
+def metropolis_hastings_pool_aux(posteriorfunc, scalelist, startvallist, numiterations, lowerboundlist, upperboundlist, deletefile, printdetails, logposterior, raiseerror, savefile):
     """
     Auxilliary function that I use to get the function I apply the mapping to when using multiple processes.
     """
-    metropolis_hastings(posteriorfunc, scalelist, startvallist, numiterations, lowerboundlist = lowerboundlist, upperboundlist = upperboundlist, savefile = savefile, deletefile = deletefile, savefrequency = savefrequency, printdetails = printdetails, logposterior = logposterior, raiseerror = raiseerror)
+    metropolis_hastings(posteriorfunc, scalelist, startvallist, numiterations, lowerboundlist = lowerboundlist, upperboundlist = upperboundlist, savefile = savefile, deletefile = deletefile, printdetails = printdetails, logposterior = logposterior, raiseerror = raiseerror)
 
 
-def metropolis_hastings_pool(savefolder, posteriorfunc, scalelist, startvallist, numiterations, lowerboundlist = None, upperboundlist = None, deletefile = True, savefrequency = 1000, printdetails = False, logposterior = False, raiseerror = True, numprocesses = None):
+def metropolis_hastings_pool(savefolder, posteriorfunc, scalelist, startvallist, numiterations, lowerboundlist = None, upperboundlist = None, deletefile = True, printdetails = False, logposterior = False, raiseerror = True, numprocesses = None):
     """
     Run Metropolis Hastings in multiple processes
     """
@@ -450,9 +447,7 @@ def metropolis_hastings_pool(savefolder, posteriorfunc, scalelist, startvallist,
     for i in range(numprocesses):
         savefiles.append(os.path.join(savefolder, str(i) + '.csv'))
 
-    # def f1(savefile):
-    #     metropolis_hastings(posteriorfunc, scalelist, startvallist, numiterations, lowerboundlist = lowerboundlist, upperboundlist = upperboundlist, savefile = savefile, deletefile = deletefile, savefrequency = savefrequency, printdetails = printdetails, logposterior = logposterior, raiseerror = raiseerror)
-    f1 = functools.partial(metropolis_hastings_pool_aux, posteriorfunc, scalelist, startvallist, numiterations, lowerboundlist, upperboundlist, deletefile, savefrequency, printdetails, logposterior, raiseerror)
+    f1 = functools.partial(metropolis_hastings_pool_aux, posteriorfunc, scalelist, startvallist, numiterations, lowerboundlist, upperboundlist, deletefile, printdetails, logposterior, raiseerror)
 
     pool.map(f1, savefiles)
 
